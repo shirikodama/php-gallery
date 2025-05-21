@@ -1,0 +1,132 @@
+body {
+    background: #6cdae7;
+    color:#000;
+    margin: 0px;
+}
+
+a {
+    text-decoration: none;
+/*    color:#000;     */
+}
+
+table.ol {
+    outline: 1px solid;
+    
+    
+/*    padding-bottom:5px;    */
+}
+td.ol {
+    outline: 1px solid;
+    outline-offset: 2px;
+}
+
+td.nol {
+    outline: 0px solid;
+    margin-bottom: 2px;
+}
+
+div.display_nav {
+    border: 2px #999 solid;
+}
+
+.redtext {
+    color: #DC143C;
+}
+
+div.display_div {
+    width: 99%;
+    border: solid;
+    background-color: #89F1FF;
+    border-width: 8px;
+    border-color: #DC143C;
+    border-radius:16px;
+    position: absolute;
+    display: none;
+    left: 0px;
+    top: 0px;    
+}
+
+div.panetop {
+    width:95%;
+    text-align:left;
+    margin-top:10px;
+    margin-bottom:20px;    
+}
+
+img.thumbimg {
+    border: 2px solid gold;
+    border-radius:16px;
+    width:192px;
+}
+
+img.paneimg {
+    width:100%;
+    border-radius: 16px;
+}
+
+img.heightcrop {
+    /* this sort of squishes it, but not too bad? */
+    width: 192px;
+    max-height: 192px;
+    background-position: center center;
+}
+
+
+img.widthcrop {
+    height: 192px;
+    max-width: 192px;
+    background-position: center center; 
+}
+
+video {
+    /* give vids a border radius */
+    border-radius:16px;
+}
+
+.menunav {
+    background: #25c5e6;
+}
+
+.fs50 {
+    font-size: 50px;
+    font-style: normal;
+}
+
+.fs40 {
+    font-size: 40px;
+    font-style: normal;
+}
+
+.fs30 {
+    font-size: 30px;
+    font-style: normal;    
+}
+
+.fs20 {
+    font-size: 20px;
+    font-style: normal;
+}
+
+.fsi20 {
+    font-size: 20px;
+    font-style: italic;
+}
+.fsi15 {
+    font-size: 15px;
+    font-style: italic;
+}
+
+.titlePadding {
+    /*
+    margin-top: 20px;
+    padding-top: 20px;
+   */
+}
+
+.hbutton {
+    padding:5px;    
+    background: #98bad7;
+    border:3px solid #396a93;
+    border-radius:10px
+}
+

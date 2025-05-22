@@ -1,0 +1,204 @@
+#!/usr/bin/ruby
+# import a gallery into the gallery software fold. put the gallery in /var/www/html/raw/galleries and cd there and type this command
+# if it's a completely new set of files, copy them to /var/www/html/raw/galleries/[new gallery name] and invoke this as galleryimport [new gallery name]
+
+require 'json'
+require 'optparse'
+
+def get_config(file)
+  rv = {}  
+  begin 
+    lines = File.readlines(file)
+    lines.each do |line|
+      next if line == '' or line[0] == '#'
+      line.strip!
+      ent = line.split "}"
+      if not ent[1]
+        ent[1] = ent[0]
+      end
+      rv[ent[0]] = ent[1]
+    end
+  rescue
+    puts "config error "+file
+  end
+  return rv  
+end
+
+def get_hidden(file)
+  rv = []
+  begin
+    lines = File.readlines(file)
+    lines.each do |line|
+      next if line == '' or line[0] == '#'
+      rv.append line.strip
+    end
+  rescue
+  end
+  return rv
+end
+
+def get_exif(exif)
+  rv = {}
+  exif.split("\n").each do |line|
+    ent = line.split(':', 2)
+    if ent.length > 1
+      rv[ent[0].strip] = ent[1].strip
+    else
+      next
+    end
+  end
+  return rv
+end
+
+def find_config(config, key)
+  rv = config[key] or ''
+  return rv
+end
+
+
+def find_hidden(hidden, key)
+  return hidden.include?(key) ? true : false
+end
+
+def find_exif(exif, key)
+  if exif.key? key
+    rv = exif[key]
+  else
+    rv = nil
+  end
+  return rv
+end
+
+#
+# start of main part of code
+#
+
+rawdir = '/var/www/html/raw/galleries'
+pubdir = '/var/www/html/pubgallery/galleries'
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: mkgalleryconfig [options]"
+
+  opts.on("-T", "--top", "only redo the top level gallery config") do |t|
+    options[:toponly] = t
+  end  
+  opts.on("-N", "--notop", "don't redo the top level gallery config") do |t|
+    options[:notop] = t
+  end  
+  opts.on("-f", "--[no-]force", "overwrite config.json files if they exist") do |f|
+    options[:force] = f
+  end
+  opts.on("-D", "--[no-]dry", "Dry run (don't change anything") do |d|
+    options[:dry] = true
+  end
+# example for value
+#  opts.on("-bNAME", "--bar=VALUE", "yrdy") do |d|
+#    options[:bar] = d
+#  end
+end.parse!
+
+dotop = true
+if ARGV.length > 0
+  dirs = []
+  ARGV.each do |a|
+    dirs.append (rawdir+'/'+a)
+  end
+  options[:notop] = true
+  if options[:toponly]
+    puts "--top and a specified directory are not compatible."
+    exit
+  end
+else
+  dirs = `chdir #{rawdir}; ls -1 .`.split("\n")
+end
+
+#puts "opts="+options.to_s
+#puts "dirs="+dirs.to_s
+
+puts "start:"
+if options[:toponly] and not options[:notop]
+  gconfig = get_config("#{rawdir}/config")
+  ghidden = get_hidden("#{rawdir}/hidden.conf")
+  files = `cd #{rawdir}; ls -1 .`.split("\n")
+  if files
+    if not options[:dry] and (not options[:force] and File.exist? "#{rawdir}/config.json")
+      system("chmod a+rw #{rawdir}/config.json 2>/dev/null")
+      puts "  #{rawdir}/config.json exists: skipping..."
+    else
+      jent = {:meta => {'dir' => '', 'desc' => 'Public Galleries'}, :data => {}}
+      files.each do |file|
+        next if not File.directory?(file)
+        ent = {:name => file, :desc => find_config(gconfig, file), "hidden" => find_hidden(ghidden, file) }
+        jent[:data][file] = ent
+      end
+      begin
+        unless options[:dry]
+          jfp = File.open("#{rawdir}/config.json", "w")
+          jfp.write(JSON.pretty_generate jent)
+          jfp.close()
+          system("chmod a+rw #{rawdir}/config.json 2>/dev/null")
+        else
+          puts "  would write:"
+          puts JSON.pretty_generate(jent)
+        end
+      rescue
+        puts "    can't write #{rawdir}/config.json"
+      end
+    end
+  end
+end
+
+exit if options[:toponly]
+
+pics = ['.jpg', '.jpeg', '.mp4', '.png']
+
+dirs.each do |dir|
+  next if not File.directory? dir or dir == 'preview' or dir == 'medium' or dir == 'large'
+  puts"#{dir}"
+  files = `cd #{dir}; ls -1 .`.split("\n")
+  config = get_config("#{dir}/config")
+  hidden = get_hidden("#{dir}/hidden.conf")
+  if files
+    jent = {:meta => {'dir' => dir, 'desc' => ''}, :data => {}}
+    # don't overwrite existing
+    if not options[:dry] and (not options[:force] and File.exist? "#{dir}/config.json")
+      system("chmod a+rw #{dir}/config.json 2>/dev/null")
+      puts "  #{dir}/config.json exists: skipping..."
+      next
+    end
+    puts "  generating config.json for #{dir}..."    
+    files.each do |file|
+      next if File.exist?(file) or not pics.include?(File.extname(file).downcase)
+      if not options[:dry]
+        exif = `exiftool '#{dir}/#{file}' 2>/dev/null`
+        puts "    #{file} "
+        exif = get_exif exif
+        ent['make'] = find_exif(exif, 'Make')
+        ent['model'] = find_exif(exif, 'Camera Model Name')
+        ent['date'] = find_exif(exif, "Date/Time Original") or find_exif(exif, "Create Date") or find_exif(exif, "Date")
+        ent['dx'] = find_exif(exif, "Image Width")
+        ent['dy'] = find_exif(exif, "Image Height")
+      end
+      ent = { :name => file, :desc => find_config(config, file), "hidden" => find_hidden(hidden, file) }                
+      jent[:data][file] = ent
+    end
+    begin
+      unless options[:dry]
+        jfp = File.open("#{dir}/config.json", "w")
+        jfp.write(JSON.pretty_generate jent)
+        jfp.close()
+        system("chmod a+rw #{dir}/config.json 2>/dev/null")
+      else
+        puts "  would write:"
+        puts JSON.pretty_generate(jent)
+      end
+    rescue
+     puts "    can't write #{dir}/config.json"
+     next
+    end    
+  end
+end
+puts "done."
+

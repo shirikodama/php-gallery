@@ -1,0 +1,30 @@
+#!/usr/bin/ruby
+# rm all of the avis recursively from the current directory
+dirs = `ls -1 .`.split("\n")
+dirs.each do |dir|
+  if not File.directory? dir
+    next
+  end
+  type = 'AVI'
+  ls = "ls -1 "+ dir + "/*.#{type} 2>/dev/null"
+  avis = `#{ls}`
+  if avis
+    avia = avis.split("\n")  
+    avia.each do |avi|    
+      cmd = 'rm -f ' +avi
+      puts cmd
+      system(cmd)
+    end
+  end
+  type = 'AVI'
+  ls = "ls -1 "+ dir + "/medium/*.#{type} 2>/dev/null"
+  avis = `#{ls}`
+  if avis
+    avia = avis.split("\n")  
+    avia.each do |avi|    
+      cmd = 'rm -f ' +avi
+      puts cmd
+      system(cmd)
+    end
+  end
+end

@@ -1,0 +1,11 @@
+#!/usr/bin/ruby
+infile = ARGV[0]
+File.open(infile, "r") do |f|
+  f.each_line do |line|
+    line.strip!
+    mp4line = line.slice(0, line.rindex('.AVI')) + '.mp4'
+    cmd = 'ffmpeg -i '+line+' '+mp4line    
+    puts cmd
+    system(cmd)
+  end
+end

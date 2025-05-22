@@ -34,7 +34,6 @@ div.display_nav {
 }
 
 div.display_div {
-    width: 99%;
     border: solid;
     background-color: #89F1FF;
     border-width: 8px;
@@ -47,10 +46,6 @@ div.display_div {
 }
 
 div.panetop {
-    width:95%;
-    text-align:left;
-    margin-top:10px;
-    margin-bottom:20px;    
 }
 
 img.thumbimg {

@@ -62,13 +62,15 @@ function updateHidden (gallery, file, newhidden, el) {
 		    set_config (gallery, file, 'hidden', newhidden);
 		    if (el) {
 			el.src = newhidden ? "open-eye.png" : "hide.png";
-			var htext = (newhidden ? "[hidden from public]" : "&nbsp;");			
 			if (gallery) {
+			    var htext = (newhidden ? "[hidden from public]" : "");
 			    var e = document.getElementById ('hidden-' + file);
 			    e.innerHTML = htext;
+			    var htext = (newhidden ? "[hidden from public]" : "&nbsp;");
 			    var e = document.getElementById ('gallery-hidden-' + file);
 			    e.innerHTML = htext;
 			} else {
+			    var htext = (newhidden ? "[hidden from public]" : "&nbsp;");
 			    var e = document.getElementById ('gallery-hidden');
 			    e.innerHTML = htext;
 			}

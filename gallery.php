@@ -45,12 +45,12 @@ $jsdir = jsesc ($dir);
 print '<div>';
 print("<div id=\"display_head\" class=\"display_nav\"><table width=100% cellpadding=0 class=\"menunav\"><tr >");
 $pn = $prevnext['prev'];
-print "<td width=5% align=right valign=bottom>";
+print "<td width=5% align=center valign=bottom>";
 print '<span style="float:left; padding-left:20px; padding-top:5px"><a href="index.php"><img title="Gallery Index" width=48 src="house.png"></a></span></td><td width=20% valign=bottom>';
 if ($pn)
     print "<a href=\"gallery.php?d=$pn\"><img width=32 src=arrow_left_green.png><span class=fs20 style=\"padding-left:20px\">($pn)</span></a>";
 print "</td>";
-$cspan = $ncells-2;
+$cspan = $ncells;
 if ($gjconfig['data'][$dir]['hidden']) {
     $img = "open-eye.png";
     $htitle = 'Unhide Gallery';
@@ -60,15 +60,21 @@ if ($gjconfig['data'][$dir]['hidden']) {
 }
 $htitle = '';
 if (is_localip ())
-    $dtoggle = "<span style=\"float:right\"><img title=\"toggle gallery public visibility\" width=16 src=$img onclick=\"toggleHide('', this, '$dir')\" class=hbutton>$htitle</span><br><span id=\"gallery-hidden\">";
+    $dtoggle = "<br><span id=\"gallery-hidden\">";
 else
     $dtoggle = '<br>';
 print "<td class=\"redtext fsi20\" colspan=$cspan valign=bottom align=center class=fs20><span style\"padding-left:10px\" class=\"fs30\" onclick=\"editTitle(this, '', '$jsdir')\">$title</span><br>$dtitle$dtoggle$dhidden</span></td>";
+
 $pn = $prevnext['next'];
 print "<td width=20% valign=bottom align=right valign=bottom style=\"padding-right:20px\">";
 if ($pn)
     print "<a href=\"gallery.php?d=$pn\"><span class=fs20 style=\"padding-right:20px\">($pn)</span><img width=32 src=arrow_right_green.png></a>";
-print "</td></tr></table></div>";     // display_head
+print "</td>";
+print "<td width=5% valign=bottom align=center>";
+if (is_localip ())
+    print "<img title=\"toggle gallery public visibility\" width=16 src=$img onclick=\"toggleHide('', this, '$dir')\" class=hbutton>$htitle";
+print "</td>";
+print "</tr></table></div>";     // display_head
 // seems to be getting cutoff
 //print '<div id="display_grid" style="height:1500px; overflow-y:auto; width:100%">';                            // the grid for the gallery thumbnails
 print '<div id="display_grid" style="width:100%">';                            // the grid for the gallery thumbnails
@@ -168,14 +174,16 @@ function get_prevnext ($dir, $dirs) {
 	 }
 
 	 function display_imgtoggle (el) {
-	     if (el.style.width == '100%' || ! el.style.width) {
-		 el.owidth = el.width;
-		 el.oheight = el.height;
-		 el.style.width = 'auto';
-		 el.title = 'click for normal fit size ('+ el.owidth + 'x' + el.oheight + ')';		 
-	     } else {
-		 el.style.width = '100%';
+	     if (el.toggled) {
+		 el.style.height = el.oheight+'px';
+		 el.style.width = el.owidth+'px';
 		 el.title = 'click for natural size (' + el.naturalWidth + 'x' + el.naturalHeight + ')';
+		 el.toggled = false;
+	     } else {
+		 el.style.height = el.naturalHeight+'px';
+		 el.style.width = el.naturalWidth+'px';
+		 el.title = 'click for normal fit size ('+ el.owidth + 'x' + el.oheight + ')';
+		 el.toggled = true;
 	     }
 	 }
 
@@ -190,7 +198,7 @@ function get_prevnext ($dir, $dirs) {
 	     if (ent) {
 		 title = ent.desc || cur;
 		 hidden = '<span id="hidden-'+cur+'" class=fsi15>';
-		 hidden += (ent.hidden ? '[hidden from public]' : '&nbsp;');
+		 hidden += (ent.hidden ? '[hidden from public]' : '');
 		 hidden += '</span>';
 	     } else {
 		 console.log ("no ent ", cur);
@@ -211,21 +219,28 @@ function get_prevnext ($dir, $dirs) {
 		     break;
 		 }
 	     }
-	     html += '<table align=center class="nol" width=95%><tr>';
-	     html += '<td class="panetop" valign=top><a onclick="display_close ()"> <img width=32 src=erase.png></a></td>';	     
+	     html += '<table width=100% align=center>';
+	     // start of header
+	     html += '<tr id="cur_header" >';
+	     html += '<td class="panetop" valign=top><a onclick="display_close ()"> <img width=32 src=erase.png></a></td>';
+	     html += '<td width=160>';
 	     if (prev) {
-		 html += '<td width=160><a onclick="display_cur(\''+jsesc(prev)+'\')"><img width=32 src=arrow_left_green.png><br>' +prev+'</a></td>';
-	     } else
-		 html += '<td width=160></td>';	     
-	     html += '<td align=center class="fs40 redtext" >' + title +'<br><span class=fs20>('+cur+')</span><br>'+hidden;
-	     var img = jconfig.data[cur].hidden ? "open-eye.png" : "hide.png";	     
-	     html += '<span style="float:right"><img width=20 src='+img+' onclick="toggleHide(\''+curdir+'\', this, \''+cur+'\')" class=hbutton></span>';
+		 html += '<a onclick="display_cur(\''+jsesc(prev)+'\')"><img width=32 src=arrow_left_green.png><br>' +prev+'</a>';
+	     }
 	     html += '</td>';
+	     html += '<td align=center class="fs40 redtext" >' + title +'<br><span class=fs20>('+cur+')</span><br>'+hidden;
+	     var img = jconfig.data[cur].hidden ? "open-eye.png" : "hide.png";
+	     html += '<td width=160 align=right>';
 	     if (next) {
-		 html += '<td width=160 align=right><a onclick="display_cur(\''+jsesc(next)+'\')"><img width=32 src=arrow_right_green.png><br>' +next+'</a></td>';
-	     }  else
-		 html += '<td width=160 align=right></td>';
-	     html += '<tr><td align=center valign=middle colspan=3>';
+		 html += '<a onclick="display_cur(\''+jsesc(next)+'\')"><img width=32 src=arrow_right_green.png><br>' +next+'</a>';
+	     }  
+	     html += '</td>';
+	     html += '</td><td align=right>';
+	     if (is_local)
+		 html += '<span><img width=20 src='+img+' onclick="toggleHide(\''+curdir+'\', this, \''+cur+'\')" class=hbutton></span>';
+	     html += '</td></tr>'; 
+	     // start of body
+	     html += '<tr><td id="cur_img" align=center valign=top colspan=5>';
 	     if (movie_type) {
 		 switch (movie_type) {
 		     case 'MP4':
@@ -249,12 +264,12 @@ function get_prevnext ($dir, $dirs) {
 			 break;
 		 }
 	     } else {
-		 html += '<img class="paneimg" src="' + htmlquote (hfile) + '" title="click for natural size" onclick="display_imgtoggle(this)">';
+		 html += '<img onload="imgload(this)" class="paneimg" src="' + htmlquote (hfile) + '" title="click for natural size" onclick="display_imgtoggle(this)">';
 	     }
 	     html += '</td></tr>';
-	     jent = JSON.stringify(ent);
+	     // start of footer
 	     var img = jconfig.data[cur].hidden ? "open-eye.png" : "hide.png";
-	     html += '<table width=100%><tr>';
+	     html += '<table id="cur_footer" width=100%><tr>';
 	     html += '<tr><th>Size</th><th>Camera</th><th>Date</th></tr><tr>';
 	     html += '<td width=25% align=center>';
 	     if (ent.dx && ent.dy)
@@ -271,7 +286,6 @@ function get_prevnext ($dir, $dirs) {
 		 html += '<span class=fs20 style="width:70%; display:table-cell; margin:0 auto;" >'+ent.date+' </span>';
 	     html += '</td>';
 	     html += '</tr></table>';
-	     //	     html += jent;
 	     html += '</td>';
 	     html += '</table>';
 	     el.innerHTML = html;
@@ -308,6 +322,32 @@ function get_prevnext ($dir, $dirs) {
 		 display_close ();
 	     }
 	 };
+
+	 function imgload (el) {
+	     // bordersize is actually the css border-radius of display_div * 2 (16 for each border)
+	     var bordersize = 16*2;
+	     var dispel = document.getElementById ('display_div');
+	     var headel = document.getElementById ('cur_header');
+	     var footel = document.getElementById ('cur_footer');
+	     var imgel = document.getElementById ('cur_img');
+	     var maxw = (window.innerWidth-bordersize);
+	     // the max height the pic can be is screen heigyh - the header - footer - borders
+	     var maxh = (window.innerHeight-(headel.offsetHeight+footel.offsetHeight+bordersize));
+	     var imgratio = el.naturalHeight / el.naturalWidth;
+	     var w = maxw;
+	     var h = imgratio * maxw;
+	     dispel.style.width = maxw+'px';
+	     if (h > maxh) {
+		 h = maxh;
+		 w = maxh*(1/imgratio);
+	     }
+	     el.style.width = w +'px';
+	     el.style.height = h + 'px';
+	     el.owidth = el.width;
+	     el.oheight = el.height;
+	     el.toggle = false;
+	     el.title = 'click for natural size (' + el.naturalWidth + 'x' + el.naturalHeight + ')';	     
+	 }
 
 	</script>
     </body>

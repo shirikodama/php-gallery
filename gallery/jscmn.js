@@ -26,7 +26,11 @@ function updateTitle (gallery, file, newtitle, el) {
 		    console.log ("update jsonerr", resp.sts);
 		}
 		if (el)
-		    el.innerHTML = el.otitle;		 
+		    el.innerHTML = el.otitle;
+		// update the grid if needed
+		var e = document.getElementById('gallery-title-' + file);
+		if (e)
+		    e.innerHTML = el.otitle;
 	    } else
 		console.log ("update error: ", resp.status);
 	}
@@ -67,6 +71,7 @@ function updateHidden (gallery, file, newhidden, el) {
 			    var e = document.getElementById ('hidden-' + file);
 			    e.innerHTML = htext;
 			    var htext = (newhidden ? "[hidden from public]" : "&nbsp;");
+			    // update the grid if needed
 			    var e = document.getElementById ('gallery-hidden-' + file);
 			    e.innerHTML = htext;
 			} else {

@@ -93,10 +93,6 @@ OptionParser.new do |opts|
   opts.on("-D", "--[no-]dry", "Dry run (don't change anything") do |d|
     options[:dry] = true
   end
-# example for value
-#  opts.on("-bNAME", "--bar=VALUE", "yrdy") do |d|
-#    options[:bar] = d
-#  end
 end.parse!
 
 dotop = true

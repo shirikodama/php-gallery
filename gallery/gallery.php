@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-	<title>M&A Gallery</title>
+	<title>M & A Gallery</title>
 	<link rel="stylesheet" href="gcss.css">
     </head>
     <!-- was overflow hidden -->
@@ -9,6 +9,7 @@
 	<script type="text/javascript">
 	    <?php print file_get_contents ("jscmn.js"); ?>
 	</script>
+	<!-- div for the image popup expander -->
 	<div id="display_div" class="display_div"></div>
 <?php
 include ("gcmn.php");
@@ -113,7 +114,7 @@ foreach ($files as $file) {
     } else
 	$title = $file;
     $sf = jsesc ($file);
-    print ("<td align=center valign=bottom><a onclick=\"display_cur('$sf')\"><img $style class=thumbimg src=\"$tfile\" onload=\"thumbload(this)\"></a><br><span class=\"fs20 titlePadding\" onclick=\"editTitle(this, '$dir', '$file')\">$title</span><br><span class=fsi15 id=\"gallery-hidden-$file\">$hid</span></td>");
+    print ("<td align=center valign=bottom><a onclick=\"display_cur('$sf')\"><img $style class=thumbimg src=\"$tfile\" onload=\"thumbload(this)\"></a><br><span class=\"fs20 titlePadding\" onclick=\"editTitle(this, '$dir', '$file')\" id=\"gallery-title-$file\">$title</span><br><span class=fsi15 id=\"gallery-hidden-$file\">$hid</span></td>");
     if (++$i == $ncells) {
 	$i = 0;
 	print ("</tr><tr >");
@@ -228,7 +229,7 @@ function get_prevnext ($dir, $dirs) {
 		 html += '<a onclick="display_cur(\''+jsesc(prev)+'\')"><img width=32 src=arrow_left_green.png><br>' +prev+'</a>';
 	     }
 	     html += '</td>';
-	     html += '<td align=center class="fs40 redtext" >' + title +'<br><span class=fs20>('+cur+')</span><br>'+hidden;
+	     html += '<td align=center class="fs40 redtext"><span onclick="editTitle(this, \''+curdir+'\', \''+cur+'\')">' + title +'</span><br><span class=fs20>('+cur+')</span><br>'+hidden;
 	     var img = jconfig.data[cur].hidden ? "open-eye.png" : "hide.png";
 	     html += '<td width=160 align=right>';
 	     if (next) {

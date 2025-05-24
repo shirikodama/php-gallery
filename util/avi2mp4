@@ -1,11 +1,29 @@
 #!/usr/bin/ruby
-infile = ARGV[0]
-File.open(infile, "r") do |f|
-  f.each_line do |line|
-    line.strip!
-    mp4line = line.slice(0, line.rindex('.AVI')) + '.mp4'
-    cmd = 'ffmpeg -i '+line+' '+mp4line    
-    puts cmd
-    system(cmd)
+# convert all of the .AVI's (or whatever) to .mp4's
+require 'optparse'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: avi2mp4 [files]"
+
+  opts.on("-D", "--[no-]dry", "Dry run (don't change anything") do |d|
+    options[:dry] = true
   end
+end.parse!
+
+infile = ARGV
+if infile.length == 0
+  files = `ls -1`.split("\n")
+  infile = files
 end
+movies = ['.avi', '.mov']
+infile.each do |f|
+  ext = File.extname(f)
+  next if not movies.include? ext.downcase
+  mp4line = f.slice(0, f.rindex(ext)) + '.mp4'
+  cmd = 'ffmpeg -y -i '+f+' '+mp4line + ' 2>/dev/null'
+  puts cmd
+  next if options[:dry]
+  system(cmd)
+end
+puts "done."

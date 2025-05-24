@@ -1,30 +1,32 @@
 #!/usr/bin/ruby
 # rm all of the avis recursively from the current directory
-dirs = `ls -1 .`.split("\n")
-dirs.each do |dir|
-  if not File.directory? dir
-    next
+
+require 'optparse'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: lsav [files]"
+
+  opts.on("-D", "--[no-]dry", "Dry run (don't change anything") do |d|
+    options[:dry] = true
   end
-  type = 'AVI'
-  ls = "ls -1 "+ dir + "/*.#{type} 2>/dev/null"
-  avis = `#{ls}`
-  if avis
-    avia = avis.split("\n")  
-    avia.each do |avi|    
-      cmd = 'rm -f ' +avi
-      puts cmd
-      system(cmd)
-    end
-  end
-  type = 'AVI'
-  ls = "ls -1 "+ dir + "/medium/*.#{type} 2>/dev/null"
-  avis = `#{ls}`
-  if avis
-    avia = avis.split("\n")  
-    avia.each do |avi|    
-      cmd = 'rm -f ' +avi
-      puts cmd
-      system(cmd)
-    end
-  end
+end.parse!
+
+dirs = ARGV
+if dirs.length == 0
+  dirs = `ls -1 .`.split("\n")  
+end
+
+infile = ARGV
+if infile.length == 0
+  files = `ls -1`.split("\n")
+  infile = files
+end
+movies = ['.avi', '.mov', '.mpeg', '.mpeg4']
+infile.each do |f|
+  ext = File.extname(f)
+  next if not movies.include? ext.downcase
+  puts f
+  next if options[:dry]
+  system("rm "+f)
 end

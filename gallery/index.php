@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-	<title>M&A Galleries</title>
+	<title>M & A Galleries</title>
 	<link rel="stylesheet" href="gcss.css">
     </head>
     <body>

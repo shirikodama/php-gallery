@@ -1,6 +1,9 @@
 #!/usr/bin/ruby
 # import a gallery into the gallery software fold. put the gallery in /var/www/html/raw/galleries and cd there and type this command
 # if it's a completely new set of files, copy them to /var/www/html/raw/galleries/[new gallery name] and invoke this as galleryimport [new gallery name]
+#
+# to import a directory and publish it in the pubgallery: mkgalleryconfig -f[orce] -P[ublish] -l[ocal] [-v] [directory-to-import]
+#
 
 require 'json'
 require 'optparse'
@@ -74,7 +77,7 @@ end
 
 rawdir = '/var/www/html/raw/galleries'
 pubdir = '/var/www/html/pubgallery/galleries'
-
+utildir = "~mike/php-gallery/util/"
 options = {}
 
 OptionParser.new do |opts|
@@ -94,8 +97,11 @@ OptionParser.new do |opts|
     # don't bother with the top level dir. it will default correctly and if it's updated it will be written out in the config
     options[:notop] = true
   end
-  opts.on("-v", "--[no-]verbose", "spew progress/debugging") do |v|
-    options[:verbose] = v
+  opts.on("-P", "--publish", "create a symlink to the diretory(s) /var/www/htl/pubgallery/galleries/") do |p|
+    options[:publish] = true
+  end
+  opts.on("-v", "--verbose", "verbose mode") do |v|
+    options[:verbose] = true
   end
   opts.on("-D", "--[no-]dry", "Dry run (don't change anything") do |d|
     options[:dry] = true
@@ -135,8 +141,10 @@ if options[:toponly] and not options[:notop]
   gconfig = get_config("#{rawdir}/config")
   ghidden = get_hidden("#{rawdir}/hidden.conf")
   files = `cd #{rawdir}; ls -1 .`.split("\n")
-  if files
-    if not options[:dry] and (not options[:force] and File.exist? "#{rawdir}/config.json")
+  if not files
+    puts "no files found for #{rawdir}"
+  else
+    if File.exist? "#{rawdir}/config.json" and (not options[:dry] or not options[:force])
       system("chmod a+rw #{rawdir}/config.json 2>/dev/null")
       puts "  #{rawdir}/config.json exists: skipping"
     else
@@ -177,16 +185,18 @@ dirs.each do |dir|
   if files
     jent = {:meta => {'dir' => dir, 'desc' => ''}, :data => {}}
     # don't overwrite existing
-    if not options[:dry] and (not options[:force] and File.exist? "#{dir}/config.json")
-      system("chmod a+rw #{dir}/config.json 2>/dev/null")
+    if (not options[:dry] and not options[:force]) and File.exist? "#{dir}/config.json"
       puts "  #{dir}/config.json exists: skipping"
       next
     end
+    system("chmod a+rw #{dir}/config.json 2>/dev/null")
     puts "  generating config.json for #{dir}" if options[:verbose]
-    v = options[:verbose] ? "-v" : ""
-    cmd = "~mike/php-gallery/util/mp42jpg -f #{v} #{dir} "    
-    system("#{cmd}")
-    puts "  mp4's done. working on images..." if options[:verbose]
+    if not options[:dry]
+      v = options[:verbose] ? "-v" : ""   
+      cmd = "#{utildir}mp42jpg -f #{v} #{dir} "    
+      system("#{cmd}")
+    end
+    puts "  mp4's done. working on images..." if options[:verbose]    
     files.each do |file|
       ext = File.extname(file).downcase
       next if not pics.include?(ext)
@@ -213,7 +223,11 @@ dirs.each do |dir|
         jfp.write(JSON.pretty_generate jent)
         jfp.close()
         system("chmod a+rw #{dir}/config.json 2>/dev/null")
-      else
+        d = dir[0..-2]
+        cmd = "cd #{pubdir}; rm -f #{pubdir}/#{d}; ln -sf #{Dir.pwd}/#{d} #{pubdir}/#{d}"
+        puts "ln = #{cmd}" if options[:verbose]
+        system(cmd) if options[:publish]
+     else
         puts "  would write:"
         puts JSON.pretty_generate(jent)
       end

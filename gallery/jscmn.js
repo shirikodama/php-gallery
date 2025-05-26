@@ -153,3 +153,11 @@ function thumbload (el) {
 	el.classList.add ('widthcrop');      
 }
 
+function abbrev (str, charlen, maxlen) {
+    if ((str.length * charlen) > maxlen) {
+	var maxchars = (maxlen - 3*charlen) / charlen;
+	var rv =  str.substring (0, maxchars) + '...';
+	return rv;
+    }
+    return str;
+}

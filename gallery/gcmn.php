@@ -40,5 +40,14 @@ function write_jconfig ($config, $dir) {
     return file_put_contents ($agallerydir . $dir . '/config.json', $json);
 }
 
+function abbrev ($str, $charlen, $maxlen) {
+    if ((strlen($str) * $charlen) > $maxlen) {
+	$maxchars = ($maxlen - 3*$charlen) / $charlen;
+	$rv =  substr ($str, 0, $maxchars) . '...';
+	return $rv;
+    }
+    return $str;
+}
+
 
 ?>

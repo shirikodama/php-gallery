@@ -11,10 +11,8 @@ a {
 
 table.ol {
     outline: 1px solid;
-    
-    
-/*    padding-bottom:5px;    */
 }
+
 td.ol {
     outline: 1px solid;
     outline-offset: 2px;
@@ -82,40 +80,36 @@ video {
     background: #25c5e6;
 }
 
-.fs50 {
-    font-size: 50px;
+.fs48 {
+    font-size: 3em;
     font-style: normal;
 }
 
 .fs40 {
-    font-size: 40px;
+    font-size: 2.5em;
     font-style: normal;
 }
 
-.fs30 {
-    font-size: 30px;
+.fs32 {
+    font-size: 2em;
     font-style: normal;    
 }
 
 .fs20 {
-    font-size: 20px;
+    font-size: 1.25em;
     font-style: normal;
 }
 
 .fsi20 {
-    font-size: 20px;
+    font-size: 1.25em;
     font-style: italic;
 }
-.fsi15 {
-    font-size: 15px;
+.fsi16 {
+    font-size: 1em;
     font-style: italic;
 }
 
 .titlePadding {
-    /*
-    margin-top: 20px;
-    padding-top: 20px;
-   */
 }
 
 .hbutton {

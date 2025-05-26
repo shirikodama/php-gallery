@@ -3,12 +3,9 @@
     <head>
 	<title>M & A Galleries</title>
 	<link rel="stylesheet" href="gcss.css">
+	<script type="text/javascript" src="jscmn.js"></script>
     </head>
     <body>
-	<script type="text/javascript">
-	    <?php print file_get_contents ("jscmn.js"); ?>
-	</script>
-	
 <?php
 include ("gcmn.php");
 $files = scandir ($agallerydir);
@@ -18,7 +15,7 @@ $previewdir = '/medium/';
 $curfiles = array ('__title' => '');
 print("<center><div style=\"width: 800px; padding-top: 50px; padding-bottom:30px\">");
 // i loath html centering these days. bite for using <center>
-print "<div class=\"fs50 redtext titlebg\" style=\"padding: 20px;\"><center>Casa Sanchez and Pioneer Galleries</center></div></center>";
+print "<div class=\"fs48 redtext titlebg\" style=\"padding: 20px;\"><center>Casa Sanchez and Pioneer Galleries</center></div></center>";
 print "<table border=0 cellpadding=20 style=\"margin: 0 auto;\"><tr>";
 foreach ($files as $file) {
     $afile = $agallerydir . $file;
@@ -49,7 +46,7 @@ foreach ($files as $file) {
 	$subtitle = "($file)";
     else
 	$subtitle = '&nbsp';
-    print ("<td align=center valign=bottom style=\"height:${twidth}px\"><a href=\"gallery.php?d=$file\"><img class=thumbimg src=\"$thumb\" onload=\"thumbload(this)\"><br></a><span class=fs20 onclick=\"editTitle(this, '', '$file')\">$title</span><br><span class=fsi15>$subtitle$hid</span></span></td>");
+    print ("<td align=center valign=bottom><a href=\"gallery.php?d=$file\"><img class=thumbimg src=\"$thumb\" onload=\"thumbload(this)\"><br></a><span class=fs20 onclick=\"editTitle(this, '', '$file')\">$title</span><br><span class=fsi16>$subtitle$hid</span></span></td>");
     if (++$i >= $ncells) {
 	$i = 0;
 	print ("</tr><tr>");
@@ -87,14 +84,12 @@ function get_thumb ($adir, $hdir, $dir, $tdir = '/medium/') {
     return $hdir;
 }
 ?>
-	<script>
+	<script type="text/javascript">
 	 var hgallerydir = '<?php print $hgallerydir; ?>';
 	 var gjconfig = <?php print json_encode ($gjconfig); ?>;	 	 
 	 var curfiles = <?php print json_encode ($curfiles); ?>;
 	 var curdir = '';
-	 var is_local = <?php print is_localip () ? 'true' : 'false'; ?>;
-
-	 
+	 var is_local = <?php print is_localip () ? 'true' : 'false'; ?>;	 
 	</script>
     </body>
 </html>

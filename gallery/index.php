@@ -32,16 +32,15 @@ foreach ($files as $file) {
     $hfile = $hgallerydir . $file;
     if ($file == '.' || $file == '..' || ! is_dir($afile))
 	continue;
-    // more stupid access control: see everything local but hide if not
-    if (isset ($gjconfig['data'][$file])) {
+    // cons up an ent if missing
+    if (! isset ($gjconfig['data'][$file]))
+	$gjconfig['data'][$file] = array ('desc' => $file, 'hidden' => false);
+    if ($gjconfig['data'][$file]['desc'])
 	$title = $gjconfig['data'][$file]['desc'];
-	if (! $title)
-	    $title = $file;
-	$ishidden = $gjconfig['data'][$file]['hidden'];
-    } else {
+    else
 	$title = $file;
-	$ishidden = false;
-    }
+    $ishidden = $gjconfig['data'][$file]['hidden'];
+    // poor man's access control
     if ($ishidden && ! is_localip ())
 	continue;
     $thumb = htmlspecialchars (get_thumb ($afile, $hfile, $file));

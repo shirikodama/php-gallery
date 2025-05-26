@@ -28,7 +28,7 @@ function get_jconfig ($adir, $file = '/config.json') {
     $c = @file_get_contents ($adir . $file);    
     if (! $c) {
 	error_log ("$adir$file not found");
-	return NULL;
+	return array ('meta' => array ('desc' => '', 'hidden' => false), 'data' => array ());
     }
     $rv = json_decode ($c, true);
     return $rv;

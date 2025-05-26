@@ -1,0 +1,37 @@
+#!/usr/bin/ruby
+# get the first frame of mp4 and write it to medium/filename.mp4.jpg (for the pubgallery photo stuff)
+require 'optparse'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: mp42jpg [options]"
+
+  opts.on("-f", "--[no-]force", "overwrite any existing medium/.mp4s if they exist") do |f|
+    options[:force] = f
+  end
+    opts.on("-v", "--[no-]verbose", "spew progress/debugging") do |v|
+    options[:verbose] = v
+  end
+end.parse!
+
+if ARGV.length > 0
+  dirs = ARGV
+else
+  dirs = `ls -1 .`.split("\n")
+end
+dirs.each do |dir|
+  next if not File.directory? dir
+  ls = 'ls -1 '+ dir + '/*.mp4 2>/dev/null'  
+  mp4s = `#{ls}`
+  next if not mp4s or mp4s == ''
+  mp4a = mp4s.split("\n")
+  mp4a.each do |mp4|    
+    mp4in = mp4
+    mp4 = mp4.slice(mp4.rindex('/')+1, mp4.length)
+    jpgout = dir+'/medium/'+mp4+'.jpg'
+    puts "    "+mp4in if options[:verbose]    
+    next if File.exist? jpgout and not options[:force]
+    cmd = 'ffmpeg -y -i ' +mp4in + ' -vframes 1 -vf scale=320x240 ' + jpgout + " 2>/dev/null"
+    system(cmd)
+  end
+end

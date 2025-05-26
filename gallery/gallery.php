@@ -29,14 +29,16 @@ $prevnext = get_prevnext ($dir, $gfiles);
 $gjconfig = get_jconfig($agallerydir);
 $jconfig = get_jconfig($agallerydir . $dir);
 
-if (isset($gjconfig['data'][$dir]) && $gjconfig['data'][$dir]['hidden'])
+if (! isset($gjconfig['data'][$dir]))
+    $gjconfig['data'][$dir] = array ('desc' => $dir, 'hidden' => false);
+if ($gjconfig['data'][$dir]['hidden'])
     $galleryhidden = true;
 else
     $galleryhidden = false;
-$title = $dir;
-// use the gjconfig file in preference for title
 if ($gjconfig['data'][$dir]['desc'])
     $title = $gjconfig['data'][$dir]['desc'];
+else
+    $title = $dir;
 $dtitle = "($dir)";
 if ($galleryhidden)
     $dhidden = '[hidden from public]';
@@ -84,6 +86,8 @@ foreach ($files as $file) {
     $ftype = strtolower (substr($file, strrpos($file, '.') + 1));
     if  ($file == '.' || $file == '..' || ! in_array($ftype, $picmov))
 	continue;
+    if (! isset ($jconfig['data'][$file]))
+	$jconfig['data'][$file] = array ('desc' => $file, 'hidden' => false);
     $ishidden = $jconfig['data'][$file]['hidden'];
     if (($galleryhidden || $ishidden) && ! is_localip ())
 	continue;    
@@ -114,7 +118,7 @@ foreach ($files as $file) {
     } else
 	$title = $file;
     $sf = jsesc ($file);
-    print ("<td align=center valign=bottom><a onclick=\"display_cur('$sf')\"><img $style class=thumbimg src=\"$tfile\" onload=\"thumbload(this)\"></a><br><span class=\"fs20 titlePadding\" onclick=\"editTitle(this, '$dir', '$file')\" id=\"gallery-title-$file\">$title</span><br><span class=fsi15 id=\"gallery-hidden-$file\">$hid</span></td>");
+    print ("<td style=\"max-width:20%\" align=center valign=bottom><a onclick=\"display_cur('$sf')\"><img $style class=thumbimg src=\"$tfile\" onload=\"thumbload(this)\"></a><br><span class=\"fs20 titlePadding\" onclick=\"editTitle(this, '$dir', '$file')\" id=\"gallery-title-$file\">$title</span><br><span class=fsi15 id=\"gallery-hidden-$file\">$hid</span></td>");
     if (++$i == $ncells) {
 	$i = 0;
 	print ("</tr><tr >");
@@ -205,6 +209,8 @@ function get_prevnext ($dir, $dirs) {
 		 console.log ("no ent ", cur);
 		 title = cur;
 		 hidden = '';
+		 ent = {desc: title, hidden: false};
+		 jconfig.data[cur] = ent;
 	     }
 	     var el = document.getElementById ('display_div');
 	     el.style.top = window.scrollY+'px';

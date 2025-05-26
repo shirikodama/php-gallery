@@ -19,7 +19,6 @@ def get_config(file)
       rv[ent[0]] = ent[1]
     end
   rescue
-    puts "config error "+file
   end
   return rv  
 end
@@ -90,6 +89,14 @@ OptionParser.new do |opts|
   opts.on("-f", "--[no-]force", "overwrite config.json files if they exist") do |f|
     options[:force] = f
   end
+  opts.on("-l", "--local", "use the local directory rather than /var/www/html/raw") do |l|
+    options[:local] = l;
+    # don't bother with the top level dir. it will default correctly and if it's updated it will be written out in the config
+    options[:notop] = true
+  end
+  opts.on("-v", "--[no-]verbose", "spew progress/debugging") do |v|
+    options[:verbose] = v
+  end
   opts.on("-D", "--[no-]dry", "Dry run (don't change anything") do |d|
     options[:dry] = true
   end
@@ -97,23 +104,33 @@ end.parse!
 
 dotop = true
 if ARGV.length > 0
-  dirs = []
-  ARGV.each do |a|
-    dirs.append (rawdir+'/'+a)
-  end
-  options[:notop] = true
-  if options[:toponly]
-    puts "--top and a specified directory are not compatible."
-    exit
+  if options[:local]
+    rawdir = ARGV[0]
+    dirs = [rawdir+'/']
+  else
+    dirs = []
+    ARGV.each do |a|
+      dirs.append (rawdir+'/'+a)
+    end
+    options[:notop] = true
+    if options[:toponly]
+      puts "--top and a specified directory are not compatible."
+      exit
+    end
   end
 else
-  dirs = `chdir #{rawdir}; ls -1 .`.split("\n")
+  if options[:local]
+    rawdir = Dir.pwd
+    dirs = [rawdir]
+  else
+    dirs = `chdir #{rawdir}; ls -1 .`.split("\n")
+  end
 end
 
 #puts "opts="+options.to_s
 #puts "dirs="+dirs.to_s
 
-puts "start:"
+puts "start:" if options[:verbose] 
 if options[:toponly] and not options[:notop]
   gconfig = get_config("#{rawdir}/config")
   ghidden = get_hidden("#{rawdir}/hidden.conf")
@@ -121,7 +138,7 @@ if options[:toponly] and not options[:notop]
   if files
     if not options[:dry] and (not options[:force] and File.exist? "#{rawdir}/config.json")
       system("chmod a+rw #{rawdir}/config.json 2>/dev/null")
-      puts "  #{rawdir}/config.json exists: skipping..."
+      puts "  #{rawdir}/config.json exists: skipping"
     else
       jent = {:meta => {'dir' => '', 'desc' => 'Public Galleries'}, :data => {}}
       files.each do |file|
@@ -152,7 +169,8 @@ pics = ['.jpg', '.jpeg', '.mp4', '.png']
 
 dirs.each do |dir|
   next if not File.directory? dir or dir == 'preview' or dir == 'medium' or dir == 'large'
-  puts"#{dir}"
+  Dir.mkdir "#{dir}/medium" unless Dir.exist? "#{dir}/medium"    
+  puts"#{dir}" if options[:verbose] 
   files = `cd #{dir}; ls -1 .`.split("\n")
   config = get_config("#{dir}/config")
   hidden = get_hidden("#{dir}/hidden.conf")
@@ -161,23 +179,32 @@ dirs.each do |dir|
     # don't overwrite existing
     if not options[:dry] and (not options[:force] and File.exist? "#{dir}/config.json")
       system("chmod a+rw #{dir}/config.json 2>/dev/null")
-      puts "  #{dir}/config.json exists: skipping..."
+      puts "  #{dir}/config.json exists: skipping"
       next
     end
-    puts "  generating config.json for #{dir}..."    
+    puts "  generating config.json for #{dir}" if options[:verbose]
+    v = options[:verbose] ? "-v" : ""
+    cmd = "~mike/php-gallery/util/mp42jpg -f #{v} #{dir} "    
+    system("#{cmd}")
+    puts "  mp4's done. working on images..." if options[:verbose]
     files.each do |file|
-      next if File.exist?(file) or not pics.include?(File.extname(file).downcase)
-      if not options[:dry]
+      ext = File.extname(file).downcase
+      next if not pics.include?(ext)
+      ent = { :name => file, :desc => find_config(config, file), :hidden => find_hidden(hidden, file) }
+      if not options[:dry]        
         exif = `exiftool '#{dir}/#{file}' 2>/dev/null`
-        puts "    #{file} "
+        puts "    #{dir}#{file} " if options[:verbose] 
         exif = get_exif exif
         ent['make'] = find_exif(exif, 'Make')
         ent['model'] = find_exif(exif, 'Camera Model Name')
         ent['date'] = find_exif(exif, "Date/Time Original") or find_exif(exif, "Create Date") or find_exif(exif, "Date")
         ent['dx'] = find_exif(exif, "Image Width")
         ent['dy'] = find_exif(exif, "Image Height")
+        if not File.exist? "#{dir}/medium/#{file}" or options[:force] and ext != '.mp4'
+          # create a thumbnail in medium
+          conv = `convert #{rawdir}/#{file} -resize 320 #{rawdir}/medium/#{file}`
+        end
       end
-      ent = { :name => file, :desc => find_config(config, file), "hidden" => find_hidden(hidden, file) }                
       jent[:data][file] = ent
     end
     begin
@@ -196,5 +223,5 @@ dirs.each do |dir|
     end    
   end
 end
-puts "done."
+puts "done." if options[:verbose] 
 

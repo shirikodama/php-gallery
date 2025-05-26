@@ -8,6 +8,8 @@ $dir = $_POST["dir"];
 $file = $_POST["file"];
 $title = $_POST["title"];
 $jconfig = get_jconfig ($agallerydir . '/' . $dir);
+if (! isset ($jconfig['data'][$file]))
+    $jconfig['data'][$file] = array ('desc' => $file, 'hidden' => false);
 $jconfig['data'][$file]['desc'] = $title;
 if (write_jconfig ($jconfig, $dir))
     $status = "200 ok";

@@ -13,10 +13,7 @@ $i = 0;
 $ncells = 5;
 $previewdir = '/medium/';
 $curfiles = array ('__title' => '');
-print("<center><div style=\"width: 800px; padding-top: 50px; padding-bottom:30px\">");
-// i loath html centering these days. bite for using <center>
-print "<div class=\"fs48 redtext titlebg\" style=\"padding: 20px;\"><center>Casa Sanchez and Pioneer Galleries</center></div></center>";
-print "<table border=0 cellpadding=20 style=\"margin: 0 auto;\"><tr>";
+// gather the pertinent files
 foreach ($files as $file) {
     $afile = $agallerydir . $file;
     if ($file == '.' || $file == '..' || ! is_dir($afile))
@@ -24,6 +21,9 @@ foreach ($files as $file) {
     $curfiles[] = $file;
 }
 $gjconfig = get_jconfig($agallerydir);
+print "<table border=0 align=center>";
+print "<tr><td colspan=5 align=center><div class=\"fs48 redtext titlebg\" style=\"padding-top: 20px; padding-bottom:20px\">Casa Sanchez and Morningwood Farms</div></td></tr>";
+print '<tr>';
 foreach ($files as $file) {
     $afile = $agallerydir . $file;
     $hfile = $hgallerydir . $file;
@@ -41,19 +41,16 @@ foreach ($files as $file) {
     if ($ishidden && ! is_localip ())
 	continue;
     $thumb = htmlspecialchars (get_thumb ($afile, $hfile, $file));
-    $hid = $ishidden ? ' [hidden from public]' : '';
-    if ($title != $file)
-	$subtitle = "($file)";
-    else
-	$subtitle = '&nbsp';
-    print ("<td align=center valign=bottom><a href=\"gallery.php?d=$file\"><img class=thumbimg src=\"$thumb\" onload=\"thumbload(this)\"><br></a><span class=fs20 onclick=\"editTitle(this, '', '$file')\">$title</span><br><span class=fsi16>$subtitle$hid</span></span></td>");
+    $hid = '<div>' . ($ishidden ? '[hidden from public]' : '&nbsp;') . '</div';
+    $subtitle = "($file)";
+    print ("<td align=center valign=bottom><a href=\"gallery.php?d=$file\"><img class=thumbimg src=\"$thumb\" onload=\"thumbload(this)\"><br></a><span class=fs20 onclick=\"editTitle(this, '', '$file')\">$title</span><div class=fsi16>$subtitle$hid</div></td>");
     if (++$i >= $ncells) {
 	$i = 0;
 	print ("</tr><tr>");
     }
 }
 
-print ("</tr></table></div>");
+print ("</tr></table>");
 
 function get_thumb ($adir, $hdir, $dir, $tdir = '/medium/') {
     $pdir = $adir . $tdir;

@@ -37,9 +37,9 @@ function display_cur (cur) {
     
     if (ent) {
 	title = ent.desc || cur;
-	hidden = '<span id="hidden-'+cur+'" class=fsi16>';
+	hidden = '<div id="hidden-'+cur+'" class=fsi16>';
 	hidden += (ent.hidden ? '[hidden from public]' : '');
-	hidden += '</span>';
+	hidden += '</div>';
     } else {
 	console.log ("no ent ", cur);
 	title = cur;
@@ -71,7 +71,7 @@ function display_cur (cur) {
     }
     html += '</td>';
     title = abbrev (title, 20, 500);
-    html += '<td align=center class="fs40 redtext"><span onclick="editTitle(this, \''+curdir+'\', \''+cur+'\')">' + title +'</span><br><span class=fs20>('+cur+')</span><br>'+hidden;
+    html += '<td align=center class="fs40 redtext"><span onclick="editTitle(this, \''+curdir+'\', \''+cur+'\')">' + title +'</span><div class=fs20>('+cur+')</div>'+hidden;
     var img = jconfig.data[cur].hidden ? "open-eye.png" : "hide.png";
     html += '<td width=160 align=right>';
     if (next) {

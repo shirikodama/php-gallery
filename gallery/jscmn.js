@@ -1,3 +1,20 @@
+function setgridheight (hel, gel) {
+    var h = window.innerHeight;
+    var w = window.innerWidth;
+    var dh = 0;
+    if (! hel)
+	hel = 'display_head';
+    if (! gel)
+	gel = 'display_grid';
+    var dh, dg, el;
+    if (el = document.getElementById (hel))
+	dh = el.offsetHeight;
+    if (dg = document.getElementById (gel)) {
+	dg.style.height = (h-dh)+'px';
+	dg.style.width = (gel.offsetWidth)+'px';
+    }
+}
+
 function set_config (gallery, file, key, val) {
     if (gallery)
 	jconfig.data[file][key] = val;

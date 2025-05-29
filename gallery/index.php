@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="gcss.css">
 	<script type="text/javascript" src="jscmn.js"></script>
     </head>
-    <body>
+    <body style="overflow-y: hidden;" onload="setgridheight()" onresize="setgridheight()">
 <?php
 include ("gcmn.php");
 $files = scandir ($agallerydir);
@@ -21,8 +21,11 @@ foreach ($files as $file) {
     $curfiles[] = $file;
 }
 $gjconfig = get_jconfig($agallerydir);
+// the header
+print '<div id="display_head" class="center fs48 redtext menunav" style="padding: 20px;">Casa Sanchez and Morningwood Farms</div>';
+// the main thumb grid
+print '<div id="display_grid" style="overflow-y: auto; height:500px">';
 print "<table border=0 align=center>";
-print "<tr><td colspan=5 align=center><div class=\"fs48 redtext titlebg\" style=\"padding-top: 20px; padding-bottom:20px\">Casa Sanchez and Morningwood Farms</div></td></tr>";
 print '<tr>';
 foreach ($files as $file) {
     $afile = $agallerydir . $file;
@@ -50,7 +53,7 @@ foreach ($files as $file) {
     }
 }
 
-print ("</tr></table>");
+print ("</tr></table></div>");
 
 function get_thumb ($adir, $hdir, $dir, $tdir = '/medium/') {
     $pdir = $adir . $tdir;

@@ -1,10 +1,3 @@
-function setgridheight () {
-    var h = window.innerHeight;
-    var dh = document.getElementById ('display_head').offsetHeight;
-    var dg = document.getElementById ('display_grid');
-    dg.style.height = (h-dh)+500+'px';
-}		 
-
 function display_close () {
     var el = document.getElementById ('cur_video');
     if (el)
@@ -61,9 +54,9 @@ function display_cur (cur) {
 	    break;
 	}
     }
+    html += '<div id="display_cur_head">';
     html += '<table width=100% align=center>';
-    // start of header
-    html += '<tr id="cur_header" >';
+    html += '<tr>';
     html += '<td class="panetop" valign=top><a onclick="display_close ()"> <img width=32 src=erase.png></a></td>';
     html += '<td width=160>';
     if (prev) {
@@ -81,7 +74,10 @@ function display_cur (cur) {
     html += '</td><td align=right>';
     if (is_local)
 	html += '<span><img width=20 src='+img+' onclick="toggleHide(\''+curdir+'\', this, \''+cur+'\')" class=hbutton></span>';
-    html += '</td></tr>'; 
+    html += '</td></tr></table></div>';
+    // start the main body of the display image
+    html += '<div id="display_cur_grid" style="overflow: auto; height:100%; width:100%" onresize="setgridheight(\'display_cur_head\', \'display_cur_grid\')">';
+    html += '<table align=center>';
     // start of body
     html += '<tr><td id="cur_img" align=center valign=top colspan=5>';
     if (movie_type) {
@@ -112,7 +108,7 @@ function display_cur (cur) {
     html += '</td></tr>';
     // start of footer
     var img = jconfig.data[cur].hidden ? "open-eye.png" : "hide.png";
-    html += '<table id="cur_footer" width=100%><tr>';
+    html += '<table id="cur_footer" align=center  width=90%><tr>';
     html += '<tr><th>Size</th><th>Camera</th><th>Date</th></tr><tr>';
     html += '<td width=25% align=center>';
     if (ent.dx && ent.dy)
@@ -127,11 +123,12 @@ function display_cur (cur) {
     html += '</td><td width=25% align=center>';
     if (ent.date)
 	html += '<span class=fs20 style="width:70%; display:table-cell; margin:0 auto;" >'+ent.date+' </span>';
-    html += '</td>';
-    html += '</tr></table>';
-    html += '</td>';
-    html += '</table>';
+    // end of footer
+    html += '</td></tr></table>';
+    html += '</td></tr>';
+    html += '</table></div>';
     el.innerHTML = html;
+    setgridheight ('display_cur_head', 'display_cur_grid');
 }
 
 function get_prevnext (curfile, curfiles) {
@@ -170,14 +167,14 @@ function imgload (el) {
     // bordersize is actually the css border-radius of display_div * 2 (16 for each border)
     var bordersize = 16*2;
     var dispel = document.getElementById ('display_div');
-    var headel = document.getElementById ('cur_header');
+    var headel = document.getElementById ('display_cur_head');
     var footel = document.getElementById ('cur_footer');
     var imgel = document.getElementById ('cur_img');
     var maxw = (window.innerWidth-bordersize);
     // the max height the pic can be is screen heigyh - the header - footer - borders
     var maxh = (window.innerHeight-(headel.offsetHeight+footel.offsetHeight+bordersize));
     var imgratio = el.naturalHeight / el.naturalWidth;
-    var w = maxw;
+    var w = maxw-20;    // the -20 gives about 10px of padding
     var h = imgratio * maxw;
     dispel.style.width = maxw+'px';
     if (h > maxh) {

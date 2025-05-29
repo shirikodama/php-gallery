@@ -32,11 +32,9 @@ div.display_nav {
 }
 
 div.display_div {
-    border: solid;
     background-color: #89F1FF;
-    border-width: 8px;
-    border-color: #DC143C;
-    border-radius:16px;
+/*    border: 4px solid #DC143C; */
+    border-radius:12px;
     position: absolute;
     display: none;
     left: 0px;
@@ -119,3 +117,8 @@ video {
     border-radius:10px
 }
 
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

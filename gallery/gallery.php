@@ -6,8 +6,7 @@
 	<script type="text/javascript" src="jscmn.js"></script>
 	<script type="text/javascript" src="gallery.js"></script>
     </head>
-    <!-- was overflow hidden -->
-    <body style="overflow-y: auto" onload="setgridheight ()" onresize="setgridheight ()">
+    <body style="overflow-y: hidden;" onload="setgridheight ()" onresize="setgridheight()">
        <div id="display_div" class="display_div"></div>
 <?php
 include ("gcmn.php");
@@ -77,8 +76,8 @@ if (is_localip ())
 print "</td>";
 print "</tr></table></div>";     // display_head
 // seems to be getting cutoff
-//print '<div id="display_grid" style="height:1500px; overflow-y:auto; width:100%">';                            // the grid for the gallery thumbnails
-print '<div id="display_grid" style="width:100%">';                            // the grid for the gallery thumbnails
+// the grid for the gallery thumbnails
+print '<div id="display_grid" style="height:500px; overflow-y: auto; width:100%">';
 print '<table style="width:100%; padding:20px;"><tr>';
 foreach ($files as $file) {
     $ftype = strtolower (substr($file, strrpos($file, '.') + 1));

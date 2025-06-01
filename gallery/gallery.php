@@ -7,7 +7,7 @@
 	<script type="text/javascript" src="gallery.js"></script>
     </head>
     <body style="overflow-y: hidden;" onload="setgridheight ()" onresize="setgridheight()">
-       <div id="display_div" class="display_div"></div>
+       <div id="display_div" class="display_div" style="display:none"></div>
 <?php
 include ("gcmn.php");
 $dir = $_GET["d"];
@@ -153,14 +153,15 @@ function get_prevnext ($dir, $dirs) {
 ?>
        <script type="text/javascript">
 	var hgallerydir = '<?php print $hgallerydir; ?>';
-	 var gfiles = <?php print json_encode ($gfiles); ?>;
-	 var jconfig = <?php print json_encode ($jconfig); ?>;
-	 var gjconfig = <?php print json_encode ($gjconfig); ?>;	 
-	 var curfiles = <?php print json_encode ($curfiles); ?>;
-	 var curdir = '<?php print $dir; ?>';
-	 var is_local = <?php print is_localip () ? 'true' : 'false'; ?>;
-	 var movies = <?php print json_encode($movies); ?>;	 	 
-	 var curfile = "";
+	var gfiles = <?php print json_encode ($gfiles); ?>;
+	var jconfig = <?php print json_encode ($jconfig); ?>;
+	var gjconfig = <?php print json_encode ($gjconfig); ?>;
+	var curfiles = <?php print json_encode ($curfiles); ?>;
+	var curdir = '<?php print $dir; ?>';
+	var is_local = <?php print is_localip () ? 'true' : 'false'; ?>;
+	var movies = <?php print json_encode($movies); ?>;
+	var curfile = "";
+	var gallery_pn = <?php print json_encode($prevnext); ?>;
        </script>
     </body>
 </html>

@@ -27,6 +27,7 @@ function display_cur (cur) {
     var next = pn['next'];
     var title, hidden;
     var ent = jconfig.data[cur];
+    curfile = cur;
     
     if (ent) {
 	title = ent.desc || cur;
@@ -109,8 +110,8 @@ function display_cur (cur) {
     // start of footer
     var img = jconfig.data[cur].hidden ? "open-eye.png" : "hide.png";
     html += '<table id="cur_footer" align=center  width=90%><tr>';
-    html += '<tr><th>Size</th><th>Camera</th><th>Date</th></tr><tr>';
-    html += '<td width=25% align=center>';
+    html += '<tr><th>Gallery</th><th>Size</th><th>Camera</th><th>Date</th></tr><tr>';
+    html += '<td width=10% align=center class=fs20>'+curdir+'</td><td width=10% align=center>';
     if (ent.dx && ent.dy)
 	html += '<span class=fs20>'+ent.dx + 'x' +ent.dy+'</span>';
     html += '</td><td width=50% align=center>';
@@ -152,14 +153,41 @@ function get_prevnext (curfile, curfiles) {
 
 document.onkeydown = function(evt) {
     evt = evt || window.event;
-    var isEscape = false;
+    var isEscape = false, isRArrow = false, isLArrow = false;
     if ("key" in evt) {
 	isEscape = (evt.key === "Escape" || evt.key === "Esc");
+	isRArrow = evt.key === 'ArrowRight';
+	isLArrow = evt.key === 'ArrowLeft';
     } else {
 	isEscape = (evt.keyCode === 27);
+	isRArrow = evt.keyCode == 39;
+	isLArrow = evt.keyCode == 38;
     }
     if (isEscape) {
-	display_close ();
+	var el = document.getElementById ('display_div');
+	if (el.style.display == 'block') {
+	    display_close ();
+	} else {
+	    // not sure why this settmo is needed, but weirdness requires...
+	    setTimeout (function () {
+		window.location.href = 'index.php';
+	    }, 10);
+	}
+    }
+    if (isRArrow || isLArrow) {
+	var el = document.getElementById ('display_div');
+	if (el.style.display == 'block') {
+	    var pn = get_prevnext  (curfile, curfiles);
+	    if (isLArrow && pn.prev)
+		display_cur (pn.prev);
+	    else if (isRArrow && pn.next)
+		display_cur (pn.next);
+	} else {
+	    if (isLArrow && gallery_pn.prev)
+		window.location.href = "gallery.php?d="+gallery_pn.prev;
+	    else if (isRArrow && gallery_pn.next)
+		window.location.href = "gallery.php?d="+gallery_pn.next;
+	}
     }
 };
 

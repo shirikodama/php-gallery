@@ -24,7 +24,7 @@ $gjconfig = get_jconfig($agallerydir);
 // the header
 print '<div id="display_head" class="center fs48 redtext menunav" style="padding: 20px;">Casa Sanchez and Morningwood Farms</div>';
 // the main thumb grid
-print '<div id="display_grid" style="overflow-y: auto; height:500px">';
+print '<div id="display_grid" style="overflow-y: auto; height:500px;">';
 print "<table border=0 align=center>";
 print '<tr>';
 foreach ($files as $file) {
@@ -53,7 +53,8 @@ foreach ($files as $file) {
     }
 }
 
-print ("</tr></table></div>");
+// give a little padding at the bottom too
+print ("</tr><tr><td height=100>&nbsp;</td></tr></table></div>");
 
 function get_thumb ($adir, $hdir, $dir, $tdir = '/medium/') {
     $pdir = $adir . $tdir;
